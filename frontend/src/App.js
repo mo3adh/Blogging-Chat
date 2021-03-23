@@ -4,13 +4,13 @@ import UserPage from "./pages/user";
 
 function App() {
 
-  const redire = ({route='/user'}) => {
+  const redire = (route) => {
     if(localStorage.getItem('user'))
-      return <Redirect to={route}/>
-    // else 
-    //   return <Redirect to='/' />
+      return <Redirect to={route ?? '/user'}/>
+    else 
+      return <Redirect to='/' />
   }
-
+  git branch -m master main
   return (
     <Router>
       <Switch>
