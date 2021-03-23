@@ -11,7 +11,6 @@ const UserPage = () => {
         } catch (error) {
             throw error;
         }
-        
     }
 
     return ( 

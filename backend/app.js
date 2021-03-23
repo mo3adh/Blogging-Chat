@@ -76,9 +76,8 @@ app.post('/login', (req, res) => {
                 res.cookie('token', token, {
                     maxAge: 10000 * 24 * 60 * 60,
                     httpOnly: true,
-                    // sameSite: 'lax'
                 });
-                res.send(result);
+                res.send({token: token});
             } else {
                 res.send({message: "Incorrect Password"});
             }

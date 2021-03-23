@@ -10,7 +10,7 @@ function App() {
     else 
       return <Redirect to='/' />
   }
-  git branch -m master main
+
   return (
     <Router>
       <Switch>

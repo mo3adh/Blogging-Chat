@@ -21,6 +21,7 @@ const Home = () => {
                 credentials: "include" 
             });
             const data = await result.json();
+            // localStorage.setItem('user', data[0]);
             history.push('/user');
             console.log(data);
         }
@@ -39,8 +40,8 @@ const Home = () => {
             });
             const data = await result.json();
             // console.log(data[0]);
-            if(data[0]) {
-                localStorage.setItem('user', JSON.stringify(data[0]));
+            if(data.token) {
+                localStorage.setItem('user', data.token);
                 history.push('/user');
             }
             else setInvalid(data.message);
