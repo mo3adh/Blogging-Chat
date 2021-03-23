@@ -3,13 +3,12 @@ import Home from "./pages/home";
 import UserPage from "./pages/user";
 
 function App() {
-  const history = useHistory();
 
-  const redire = () => {
+  const redire = ({route='/user'}) => {
     if(localStorage.getItem('user'))
-      return <Redirect to='/user'/>
-    else 
-      return <Redirect to='/' />
+      return <Redirect to={route}/>
+    // else 
+    //   return <Redirect to='/' />
   }
 
   return (
@@ -21,11 +20,12 @@ function App() {
         </Route>
         <Route path='/user'>
           <UserPage />
-          {redire()}
+          {redire('/user')}
         </Route>
 
 
         <Route path='/*'>
+          {redire()}
           <Home />
         </Route>
       </Switch>
