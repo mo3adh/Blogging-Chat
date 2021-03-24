@@ -12,7 +12,7 @@ const conn = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
     password : '',
-    database : 'reglogin'
+    database : 'socialmedia'
 });
 
 app.use(cors({
@@ -46,10 +46,18 @@ app.get('/', (req, res) => {
 /* Create new user */
 app.post('/createUser', async (req, res) => {
     let {username, password} = req.body;
+
+    let sql = 'SELECT * FROM  users WHERE username = ?';
+    conn.query(sql, [username] ,(error, result) => {
+        if(error) throw error;
+        if(result)
+            res.send({found: true});
+    });
+
     const salt = await bcrypt.genSalt();
     password = await bcrypt.hash(password, salt);
     
-    const sql = "INSERT INTO users (username, password) VALUES(?, ?)";
+    sql = "INSERT INTO users(username, password) VALUES(?, ?)";
     conn.query(sql, [username, password], (error, result) => {
         if(error) throw error;
         res.send(result);
@@ -105,4 +113,23 @@ app.get('/authUser', authJwt, (req, res) => {
 app.get('/logOut', (req, res) => {
     res.clearCookie("token");
     res.send({message: 'token removed'});
+});
+
+/* Retrieve all posts */
+app.get('/getPosts', (req, res) => {
+    const sql = 'SELECT * FROM posts';
+    conn.query(sql, (error, result) => {
+        if(error) res.send(error);
+        res.send(result);
+    });
+});
+
+/* Create new post */
+app.post('/createPost', (req, res) => {
+    const {userId, body} = req.body;
+    const sql = 'INSERT INTO posts(user_id, body) VALUES(?, ?)';
+    conn.query(sql, [userId, body], (error, result) => {
+        if(error) res.send(error.message);
+        res.send(result);
+    });
 });
