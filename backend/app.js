@@ -126,10 +126,21 @@ app.get('/getPosts', (req, res) => {
 
 /* Create new post */
 app.post('/createPost', (req, res) => {
-    const {userId, body} = req.body;
-    const sql = 'INSERT INTO posts(user_id, body) VALUES(?, ?)';
-    conn.query(sql, [userId, body], (error, result) => {
+    const {postBody} = req.body;
+    const data = jwt.decode(req.cookies.token);
+
+    /* Retrieve user info from databese */
+    let sql = 'SELECT * FROM users where id = ?';
+    conn.query(sql, data.id, (error, result) => {
         if(error) res.send(error.message);
-        res.send(result);
+        if(result) {
+            let username = result[0].username;
+            let userId = result[0].id;
+            sql = 'INSERT INTO posts(user_id, user, body) VALUES(?, ?, ?)';
+            conn.query(sql, [userId, username, postBody], (error, result) => {
+                if(error) res.send(error.message);
+                else res.send(result);
+            });
+        } else res.send(error.message);
     });
 });

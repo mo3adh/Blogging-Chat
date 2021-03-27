@@ -1,14 +1,13 @@
-import { BrowserRouter as Router, Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import NavBar from "./components/navbar";
 import Home from "./pages/home";
-import LogOut from "./pages/logout";
-import UserPage from "./pages/user";
+import Login from "./pages/login";
 
 function App() {
 
   const redire = (route) => {
     if(localStorage.getItem('user'))
-      return <Redirect to={route ?? '/user'}/>
+      return <Redirect to={route ?? '/home'}/>
     else 
       return <Redirect to='/' />
   }
@@ -18,12 +17,12 @@ function App() {
       <NavBar />
       <Switch>
         <Route exact path='/'>
-          <Home />
+          <Login />
           {redire()}
         </Route>
-        <Route path='/user'>
-          <UserPage />
-          {redire('/user')}
+        <Route path='/home'>
+          <Home />
+          {redire('/home')}
         </Route>
         {/* <Route path='/logout'>
           <LogOut />

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 
@@ -10,6 +9,7 @@ import { Link, useHistory } from "react-router-dom";
 			await fetch('http://localhost:5000/logOut', {credentials: 'include'});
 			localStorage.removeItem('user');
 			history.push('/');
+			window.location.reload();
 		} catch (error) {
 			throw error;
 		}
@@ -19,8 +19,8 @@ import { Link, useHistory } from "react-router-dom";
 		<Navbar bg="primary" variant="dark">
 			<Navbar.Brand href="#home">Blogs</Navbar.Brand>
 			<Nav className="mr-auto">
-				<Nav.Link as={Link} to="/"> Home </Nav.Link>
-				{/* { localStorage.getItem() && <Nav.Link as={Link} to="/" onClick= {handleLogOut}> Log Out </Nav.Link> } */}
+				<Nav.Link as={Link} to="/home"> Home </Nav.Link>
+				{ localStorage.getItem('user') && <Nav.Link as={Link} to="/" onClick= {handleLogOut}> Log Out </Nav.Link> }
 			</Nav>
 		</Navbar>
 	);

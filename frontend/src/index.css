@@ -7,13 +7,57 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.Home {
-  width: 500px;
+/* Login Page ************************/
+.Login {
+  width: 65%;
   margin: auto;
   padding: 10px;
 }
 
 
-input {
+.Login input {
   display: block;
+}
+
+/* Home Page ******************/
+.Home {
+  width: 65%;
+  margin: auto;
+  padding: 10px;
+}
+
+/* Create Post *****************/
+.CreatePost {
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+.CreatePost textarea {
+  resize: none;
+  padding: 5px;
+  width: 80%;
+  height: 200px;
+}
+
+.CreatePost input[type=submit] {
+  width: 10%;
+  background-color: rgb(84, 107, 207);
+  color: white;
+  border: none;
+  border-radius: 10px;
+}
+
+/* Post ***************************/
+.PostItem {
+  width: 60%;
+  min-height: 100px;
+  background-color: aliceblue;
+  font-weight: bold;
+  margin: 5px;
+  padding: 5px;
+}
+
+.PostUser {
+  margin-bottom: 5px;
+  font-weight: bold;
 }
