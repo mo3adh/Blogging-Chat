@@ -2,15 +2,20 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-d
 import NavBar from "./components/navbar";
 import Home from "./pages/home";
 import Login from "./pages/login";
-import UserProfile from "./pages/myProfile";
+import MyProfile from "./pages/myProfile";
+import UserProfile from "./pages/userProfile";
 
 function App() {
 
   const redire = (route) => {
-    if(localStorage.getItem('user'))
-      return <Redirect to={route ?? '/home'}/>
-    else 
+    // if(localStorage.getItem('user'))
+    //   return <Redirect to={route ?? '/home'}/>
+    // else 
+    //   return <Redirect to='/' />
+    if(!localStorage.getItem('user'))
       return <Redirect to='/' />
+    else return 
+    
   }
 
   return (
@@ -18,18 +23,17 @@ function App() {
       <NavBar />
       <Switch>
         <Route exact path='/'>
-          <Login />
-          {redire()}
+          {!localStorage.getItem('user') ? <Login /> : <Home />}
         </Route>
         <Route path='/home'>
-          <Home />
-          {redire('/home')}
+          {localStorage.getItem('user') ? <Home /> : <Login />}
         </Route>
-        <Route path='/userProfile'>
-          <UserProfile />
-          {redire('/userProfile')}
+        <Route path='/myProfile'>
+          {localStorage.getItem('user') ? <MyProfile /> : <Login />}
         </Route>
-
+        <Route path='/userProfile/:id'>
+          {localStorage.getItem('user') ? <UserProfile /> : <Login />}
+        </Route>
 
         <Route path='/*'>
           {redire()}

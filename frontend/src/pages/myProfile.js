@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import GetMyPosts from "../components/getMyPosts";
 
-const UserProfile = () => {
+const MyProfile = () => {
     const [username, setUsername] = useState(null);
     const getData = async () => {
         try {
@@ -18,7 +18,7 @@ const UserProfile = () => {
     useEffect(getData);
 
     return ( 
-        <div className="UserProfile">
+        <div className="MyProfile">
         <Container className='fluid'>
             <h3 className='text-center my-5'>My Profile</h3>
             <GetMyPosts />
@@ -28,4 +28,4 @@ const UserProfile = () => {
      );
 }
  
-export default UserProfile;
+export default MyProfile;

@@ -173,18 +173,22 @@ app.post('/createPost', (req, res) => {
 /* Get user info */
 app.get('/getUserInfo/:id', (req, res) => {
     const id = req.params;
-    let sql = 'SELECT username, body FROM users, posts WHERE users.id = ? AND users.id = userId';
-    conn.query(sql, id.id, (error, result) => {
-        if(error) res.send(error.message);
-        else res.send(result);
+    let sql = 'SELECT username FROM users WHERE users.id = ?';
+    conn.query(sql, id.id, (error, result1) => {
+        if(result1) {
+            let sql = 'SELECT id, body FROM posts WHERE userId = ?';
+            conn.query(sql, id.id, (error, result2) => {
+                if(error) res.send(error.message);
+                res.send({username: result1[0].username, posts: result2});
+            });
+        } else res.send(error.message);
     });
-});
 
-app.get('/test', (req, res) => {
-    const sql = 'SELECT posts.body, users.username FROM users JOIN posts ON users.id = userId GROUP BY username';
-    conn.query(sql, (error, result) => {
-        if(error) res.send(error.message);
-        else res.send(result);
-    }); 
+
+    // let sql = 'SELECT username, body FROM users, posts WHERE users.id = ? AND users.id = userId';
+    // conn.query(sql, id.id, (error, result) => {
+    //     if(error) res.send(error.message);
+    //     else res.send(result);
+    // });
 });
 
