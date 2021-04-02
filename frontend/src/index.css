@@ -49,12 +49,21 @@ body {
 
 /* Post ***************************/
 .PostItem {
-  width: 60%;
+  min-width: 60%;
   min-height: 100px;
   background-color: aliceblue;
   font-weight: bold;
   margin: 5px;
   padding: 5px;
+}
+
+.PostItem a{
+  display: inline-block;
+  
+}
+.PostItem a:hover{
+  text-decoration: none;
+  
 }
 
 .PostUser {

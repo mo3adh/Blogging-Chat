@@ -7,7 +7,7 @@ const GetData = (url)=> {
 
     useEffect(() => {
         const abortCont = new AbortController();
-        fetch(url, { signal: abortCont.signal })
+        fetch(url, { signal: abortCont.signal, credentials: 'include' })
         .then((result) => {
             return result.json();
         })

@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
 import GetData from "../services/getData";
 import PostItem from "./postItem";
 
-const GetPosts = () => {
-    const {data : posts , loading, err} = GetData('http://localhost:5000/getPosts');
+const GetMyPosts = () => {
+
+    const {data : posts , loading, err} = GetData('http://localhost:5000/myPosts');
 
     return ( 
-        <div className="GetPosts">
+        <div className="GetMyPosts">
             {posts && posts.map((post) => (
                 <PostItem post={post} key={post.id} />
             ))}
         </div>
      );
 }
- 
-export default GetPosts;
+
+export default GetMyPosts;

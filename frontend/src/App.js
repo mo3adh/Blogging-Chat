@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-d
 import NavBar from "./components/navbar";
 import Home from "./pages/home";
 import Login from "./pages/login";
+import UserProfile from "./pages/myProfile";
 
 function App() {
 
@@ -24,10 +25,10 @@ function App() {
           <Home />
           {redire('/home')}
         </Route>
-        {/* <Route path='/logout'>
-          <LogOut />
-          {redire('/logout')}
-        </Route> */}
+        <Route path='/userProfile'>
+          <UserProfile />
+          {redire('/userProfile')}
+        </Route>
 
 
         <Route path='/*'>

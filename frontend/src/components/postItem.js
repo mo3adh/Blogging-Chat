@@ -1,8 +1,13 @@
 const PostItem = ({post}) => {
+    const handleClick = (e) => {
+        e.preventDefault();
+        console.log(post.userId);
+    }
+
     return ( 
-        <div className="PostItem" key={post.id}>
+        <div className="PostItem">
             <div className="PostUser">
-                <h4>{post.user}</h4>
+                <a href='#' onClick={handleClick}> <h4>{post.username}</h4> </a>
             </div>
             <div className="PostBody">
                 <p>{post.body}</p>

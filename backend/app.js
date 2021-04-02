@@ -109,6 +109,19 @@ app.get('/authUser', authJwt, (req, res) => {
     res.send('Congrats you are logged in');
 });
 
+/* Get my Info */
+app.get('/getInfo', (req, res) => {
+    const data = jwt.decode(req.cookies.token);
+    if(data) {
+        let sql = 'SELECT * FROM users WHERE id = ?';
+        conn.query(sql, [data.id], (error, result) => {
+            if(error) res.send(error.message);
+            else res.send({username: result[0].username});
+        });
+    } else res.send({id: null});
+    
+});
+
 /* Log Out */
 app.get('/logOut', (req, res) => {
     res.clearCookie("token");
@@ -117,12 +130,23 @@ app.get('/logOut', (req, res) => {
 
 /* Retrieve all posts */
 app.get('/getPosts', (req, res) => {
-    const sql = 'SELECT * FROM posts';
+    const sql = 'SELECT * FROM posts, users WHERE users.id = userId';
     conn.query(sql, (error, result) => {
         if(error) res.send(error);
         res.send(result);
     });
 });
+
+app.get('/myPosts', (req, res) => {
+    const data = jwt.decode(req.cookies.token);
+    if(data) {
+        let sql = 'SELECT * FROM posts, users where userId = ? AND posts.userId = users.id';
+        conn.query(sql, data.id, (error, result) => {
+            if(error) res.send(error.message);
+            else res.send(result);
+        });
+    } else res.send({});
+}); 
 
 /* Create new post */
 app.post('/createPost', (req, res) => {
@@ -130,17 +154,37 @@ app.post('/createPost', (req, res) => {
     const data = jwt.decode(req.cookies.token);
 
     /* Retrieve user info from databese */
-    let sql = 'SELECT * FROM users where id = ?';
-    conn.query(sql, data.id, (error, result) => {
+    if(data) {
+        let sql = 'SELECT * FROM users where id = ?';
+        conn.query(sql, data.id, (error, result) => {
+            if(error) res.send(error.message);
+            if(result) {
+                let userId = result[0].id;
+                sql = 'INSERT INTO posts(user_id, body) VALUES(?, ?)';
+                conn.query(sql, [userId, postBody], (error, result) => {
+                    if(error) res.send(error.message);
+                    else res.send(result);
+                });
+            } else res.send(error.message);
+        });
+    } else res.send({});
+});
+
+/* Get user info */
+app.get('/getUserInfo/:id', (req, res) => {
+    const id = req.params;
+    let sql = 'SELECT username, body FROM users, posts WHERE users.id = ? AND users.id = userId';
+    conn.query(sql, id.id, (error, result) => {
         if(error) res.send(error.message);
-        if(result) {
-            let username = result[0].username;
-            let userId = result[0].id;
-            sql = 'INSERT INTO posts(user_id, user, body) VALUES(?, ?, ?)';
-            conn.query(sql, [userId, username, postBody], (error, result) => {
-                if(error) res.send(error.message);
-                else res.send(result);
-            });
-        } else res.send(error.message);
+        else res.send(result);
     });
 });
+
+app.get('/test', (req, res) => {
+    const sql = 'SELECT posts.body, users.username FROM users JOIN posts ON users.id = userId GROUP BY username';
+    conn.query(sql, (error, result) => {
+        if(error) res.send(error.message);
+        else res.send(result);
+    }); 
+});
+
