@@ -7,9 +7,6 @@ import MyProfile from "./pages/myProfile";
 import UserProfile from "./pages/userProfile";
 
 function App() {
-
-  
-
   return (
     <Router>
       <NavBar />

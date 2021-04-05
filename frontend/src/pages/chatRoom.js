@@ -6,13 +6,14 @@ const ChatRoom = () => {
     const [response, setResponse] = useState('');
     useEffect(() => {
         const socket = socketIOClient(ENDPOINT, {transports: ['websocket']});
-        socket.on("FromAPI", data => {
+        socket.on("sendBack", data => {
           setResponse(data);
         });
+        socket.emit('sendBack', 'Hello Again');
         return () => socket.disconnect();
       }, []);
 
-    return ( 
+    return (
         <div className="ChatRoom">
             <time dateTime={response}>{response}</time>
         </div>

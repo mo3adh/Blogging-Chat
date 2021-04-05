@@ -53,8 +53,7 @@ io.on('connection', (socket) => {
 });
 
 const getApiAndEmit = socket => {
-    const response = new Date();
-    socket.emit('FromAPI', response)
+    socket.emit('FromAPI', 'Hello Fellows');
 }
 
 const serverPort = 4001;
