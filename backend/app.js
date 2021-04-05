@@ -7,6 +7,9 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
+const http = require("http");
+const socketIo = require("socket.io");
+
 
 const conn = mysql.createConnection({
     host     : 'localhost',
@@ -34,13 +37,40 @@ app.listen(port, () => {
     });
 });
 
-/* */
+const server = http.createServer(app);
+const io = socketIo(server);
+
+let interval;
+
+io.on('connection', (socket) => {
+    console.log("New client connected");
+    if(interval) clearInterval(interval);
+    interval = setInterval(() => getApiAndEmit(socket), 1000);
+    socket.on('disconnect', () => {
+        console.log("Client disconnected");
+        clearInterval(interval);
+    })
+});
+
+const getApiAndEmit = socket => {
+    const response = new Date();
+    socket.emit('FromAPI', response)
+}
+
+const serverPort = 4001;
+server.listen(serverPort, () => console.log(`Listening on port ${serverPort}`));
+
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: ["POST", "GET"],
+    credentials: true
+}));
+
+
+
+/********************************************************************************* */
 app.get('/', (req, res) => {
-    const sql = "SELECT * FROM  users";
-    conn.query(sql, (err, result) => {
-        if(err) throw err;
-        res.send(result);
-    });
+    res.send({ response: "I am alive" }).status(200);
 });
 
 /* Create new user */
@@ -83,7 +113,7 @@ app.post('/login', (req, res) => {
                 const token = createToken(result[0].id);
                 res.cookie('token', token, {
                     maxAge: 10000 * 24 * 60 * 60,
-                    httpOnly: true,
+                    // httpOnly: true,
                 });
                 res.send({token: token});
             } else {
@@ -176,19 +206,12 @@ app.get('/getUserInfo/:id', (req, res) => {
     let sql = 'SELECT username FROM users WHERE users.id = ?';
     conn.query(sql, id.id, (error, result1) => {
         if(result1) {
-            let sql = 'SELECT id, body FROM posts WHERE userId = ?';
+            let sql = 'SELECT posts.id, body, userId, username FROM posts, users WHERE userId = ? and userId = users.id';
             conn.query(sql, id.id, (error, result2) => {
                 if(error) res.send(error.message);
                 res.send({username: result1[0].username, posts: result2});
             });
         } else res.send(error.message);
     });
-
-
-    // let sql = 'SELECT username, body FROM users, posts WHERE users.id = ? AND users.id = userId';
-    // conn.query(sql, id.id, (error, result) => {
-    //     if(error) res.send(error.message);
-    //     else res.send(result);
-    // });
 });
 

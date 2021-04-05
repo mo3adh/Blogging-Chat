@@ -72,3 +72,11 @@ body {
 }
 
 /* User Profile */
+.UserHeader {
+  text-align: center;
+}
+.UserHeader h4{
+  display: inline-block;
+  text-align: center;
+  padding-right: 10px;
+}

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import NavBar from "./components/navbar";
+import ChatRoom from "./pages/chatRoom";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import MyProfile from "./pages/myProfile";
@@ -7,16 +8,7 @@ import UserProfile from "./pages/userProfile";
 
 function App() {
 
-  const redire = (route) => {
-    // if(localStorage.getItem('user'))
-    //   return <Redirect to={route ?? '/home'}/>
-    // else 
-    //   return <Redirect to='/' />
-    if(!localStorage.getItem('user'))
-      return <Redirect to='/' />
-    else return 
-    
-  }
+  
 
   return (
     <Router>
@@ -34,10 +26,12 @@ function App() {
         <Route path='/userProfile/:id'>
           {localStorage.getItem('user') ? <UserProfile /> : <Login />}
         </Route>
+        <Route path='/chatRoom'>
+          {localStorage.getItem('user') ? <ChatRoom /> : <Login />}
+        </Route>
 
         <Route path='/*'>
-          {redire()}
-          <Home />
+          {!localStorage.getItem('user') ? <Login /> : <Home />}
         </Route>
       </Switch>
     </Router>
