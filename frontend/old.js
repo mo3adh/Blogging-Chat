@@ -1,3 +1,63 @@
+import { useEffect, useRef, useState } from "react";
+import socketIOClient  from "socket.io-client";
+const ENDPOINT = 'http://127.0.0.1:4001';
+
+const ChatRoom = () => {
+  const socket = socketIOClient(ENDPOINT, {transports: ['websocket']});
+  const [response, setResponse] = useState('');
+  const [messageBack, setMessageBack] = useState('');
+
+  const name = useRef();
+
+  useEffect(() => {
+    socket.on("message", data => {
+      setResponse(data);
+    });
+    return () => socket.disconnect();
+  }, []);
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      name.current = e.target.value;
+      socket.emit('messageBack', 'name.current');
+    }
+
+  return (
+    <div className="ChatRoom">
+      <div >{name.current}</div>
+      <form onSubmit = {handleSubmit}>
+        <label>Send Message</label>
+        <input type='text' required onChange={ (e) => setMessageBack(e.target.value)}/>
+        <input type='submit' value='Send'/>
+      </form>
+    </div>
+  );
+}
+ 
+export default ChatRoom;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import TextField from "@material-ui/core/TextField";
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
@@ -45,12 +105,7 @@ const ChatRoom = () => {
 			<form onSubmit={onMessageSubmit}>
 				<h1>Messenger</h1>
 				<div className="name-field">
-					<TextField 
-            name="name"
-            onChange={(e) => onTextChange(e)} 
-            value={state.name} 
-            label="Name"
-          />
+					<TextField name="name" onChange={(e) => onTextChange(e)} value={state.name} label="Name" />
 				</div>
 				<div>
 					<TextField

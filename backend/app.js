@@ -37,24 +37,16 @@ app.listen(port, () => {
     });
 });
 
+/* Create my socket */
 const server = http.createServer(app);
 const io = socketIo(server);
 
-let interval;
-
-io.on('connection', (socket) => {
-    console.log("New client connected");
-    if(interval) clearInterval(interval);
-    interval = setInterval(() => getApiAndEmit(socket), 1000);
-    socket.on('disconnect', () => {
-        console.log("Client disconnected");
-        clearInterval(interval);
-    })
-});
-
-const getApiAndEmit = socket => {
-    socket.emit('FromAPI', 'Hello Fellows');
-}
+io.on('connection', socket => {
+    socket.on('message', ({ name, message }) => {
+      io.emit('message', { name, message })
+    });
+  })
+  
 
 const serverPort = 4001;
 server.listen(serverPort, () => console.log(`Listening on port ${serverPort}`));
@@ -64,7 +56,6 @@ app.use(cors({
     methods: ["POST", "GET"],
     credentials: true
 }));
-
 
 
 /********************************************************************************* */
