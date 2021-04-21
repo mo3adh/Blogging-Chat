@@ -39,26 +39,32 @@ app.listen(port, () => {
 
 /* Create my socket */
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+});
 
 io.on('connection', socket => {
     socket.on('message', ({ name, message }) => {
-      io.emit('message', { name, message })
+      io.emit('message', { name, message });
     });
-  })
+});
   
 
-const serverPort = 4001;
+const serverPort = 4000;
 server.listen(serverPort, () => console.log(`Listening on port ${serverPort}`));
 
+
+/********************************************************************************* */
 app.use(cors({
     origin: "http://localhost:3000",
     methods: ["POST", "GET"],
     credentials: true
 }));
 
-
-/********************************************************************************* */
 app.get('/', (req, res) => {
     res.send({ response: "I am alive" }).status(200);
 });

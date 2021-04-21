@@ -3,54 +3,48 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 
 const ChatRoom = () => {
-  const [ state, setState ] = useState({ message: "", name: "" })
-	const [ chat, setChat ] = useState([])
+	const [chat, setChat] = useState([]);
+	const [state, setState] = useState({name: "", message: ""});
+	const socketRef = useRef();
 
-  const socketRef = useRef();
-
-  useEffect(
-		() => {
-			socketRef.current = io.connect("http://localhost:4001", {transports: ['websocket']})
-			socketRef.current.on("message", ({ name, message }) => {
-				setChat([ ...chat, { name, message } ])
-			})
-			return () => socketRef.current.disconnect()
-		},
-		[ chat ]
-	)
-
-  const onTextChange = (e) => {
-		setState({ ...state, [e.target.name]: e.target.value })
-	}
+	useEffect(() => {
+		socketRef.current = io.connect('http://localhost:4000');
+		socketRef.current.on('message', ({name, message}) => {
+			setChat([...chat, {name, message}]);
+		});
+		return () => socketRef.current.disconnect();
+	}, [chat]);
 
 	const onMessageSubmit = (e) => {
-		const { name, message } = state
-		socketRef.current.emit("message", { name, message })
-		e.preventDefault()
-		setState({ message: "", name })
+		e.preventDefault();
+		const {name, message} = state;
+		socketRef.current.emit('message', ({name, message}));
+		setState({name: "", message: ""});
 	}
 
-  const renderChat = () => {
-		return chat.map(({ name, message }, index) => (
+	const onTextChange = (e) => {
+		setState({...state, [e.target.name]: e.target.value});
+	}
+
+	const renderChat = () => {
+		return chat.map(({name, message}, index) => (
 			<div key={index}>
-				<h3>
-					{name}: <span>{message}</span>
-				</h3>
+				{name} : {message}
 			</div>
 		))
 	}
 
-  return (
+  	return (
 		<div className="card">
 			<form onSubmit={onMessageSubmit}>
 				<h1>Messenger</h1>
 				<div className="name-field">
 					<TextField 
-            name="name"
-            onChange={(e) => onTextChange(e)} 
-            value={state.name} 
-            label="Name"
-          />
+						name="name"
+						onChange={(e) => onTextChange(e)} 
+						value={state.name} 
+						label="Name"
+					/>
 				</div>
 				<div>
 					<TextField
