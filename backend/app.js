@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const http = require("http");
 const socketIo = require("socket.io");
+const { connect } = require('http2');
 
 
 const conn = mysql.createConnection({
@@ -47,12 +48,19 @@ const io = socketIo(server, {
     },
 });
 
-io.on('connection', socket => {
-    socket.on('message', ({ name, message }) => {
-      io.emit('message', { name, message });
+let connectedUsers = [];
+io.on('connection', async (socket) => {
+    console.log(io.engine.clientsCount);
+    socket.on('login', (user) => {
+        connectedUsers.push({socketId: socket.id, userInfo: user});
+        console.log(user);
+        io.emit('showConnected', "connectedUsers");
+    });
+    socket.on('send message to server', (message) => {
+        socket.join(message.to);
+        socket.broadcast.emit('send message to client', message);
     });
 });
-  
 
 const serverPort = 4000;
 server.listen(serverPort, () => console.log(`Listening on port ${serverPort}`));
@@ -109,7 +117,6 @@ app.post('/login', (req, res) => {
                 const token = createToken(result[0].id);
                 res.cookie('token', token, {
                     maxAge: 10000 * 24 * 60 * 60,
-                    // httpOnly: true,
                 });
                 res.send({token: token});
             } else {
@@ -142,7 +149,7 @@ app.get('/getInfo', (req, res) => {
         let sql = 'SELECT * FROM users WHERE id = ?';
         conn.query(sql, [data.id], (error, result) => {
             if(error) res.send(error.message);
-            else res.send({username: result[0].username});
+            else res.send({id: result[0].id,username: result[0].username});
         });
     } else res.send({id: null});
     

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
+import io from "socket.io-client";
+const jwt = require('jsonwebtoken');
 
 const Login = () => {
     const history = useHistory();
@@ -8,8 +10,11 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [invalid, setInvalid] = useState('');
-
+    const socketRef = useRef();
     
+    useEffect(() => {
+        socketRef.current = io.connect('http://localhost:4000');
+    })
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -23,7 +28,6 @@ const Login = () => {
                 credentials: "include" 
             });
             const data = await result.json();
-            // localStorage.setItem('user', data[0]);
             history.push('/home');
             console.log(data);
         }
@@ -38,12 +42,11 @@ const Login = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: "include"
             });
             const data = await result.json();
-            // console.log(data[0]);
             if(data.token) {
                 localStorage.setItem('user', data.token);
+                socketRef.current.emit('login', jwt.decode(localStorage.getItem('user')));
                 history.push('/home');
                 window.location.reload();
             }
