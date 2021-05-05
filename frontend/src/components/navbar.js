@@ -4,7 +4,6 @@ import serverURL from "../enviornment";
 
  const NavBar = () => {
 	const history = useHistory();
-
 	const handleLogOut = async () => {
 		try {
 			await fetch(serverURL + '/logout', {credentials: 'include'});

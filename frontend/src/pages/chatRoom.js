@@ -10,24 +10,22 @@ const ChatRoom = () => {
 	const socketRef = useRef();
 
 	const user = jwt.decode(localStorage.getItem('user'));
-	const {data: userInfo, loading, error} = GetData('http://localhost:5000/getUserInfo/' + user.id);
-
+		const {data, loading, error} = GetData('http://localhost:5000/getUserInfo/' + user.id);
+		console.log(data);
 	useEffect(() => {
-		socketRef.current = io.connect('http://localhost:4000');
-		socketRef.current.on('send message to client', (message) => {
-			console.log(message);
-			setChat([...chat, message]);
-		});
-		socketRef.current.on('showConnected', (usersList) => {
-			console.log(usersList);
-		});
-	}, [chat]);
+		
+		// socketRef.current = io.connect('http://localhost:4000');
+		// socketRef.current.emit('login', userInfo);
+		// socketRef.current.on('show clients', (clientSocketId) => {
+		// 	console.log(clientSocketId);
+		// });
+	}, []);
 
 	const onMessageSubmit = (e) => {
 		e.preventDefault();
-		socketRef.current.emit('send message to server', {
-			to: 'Ahmed', from: userInfo.username, body: message
-		});
+		// socketRef.current.emit('send message to server', {
+		// 	to: 'Ahmed', from: userInfo.username, body: message
+		// });
 		setMessage('');
 	}
 
@@ -38,7 +36,7 @@ const ChatRoom = () => {
 	const renderChat = () => {
 		return chat.map((element, index) => (
 			<div key={index}>
-				{element.from} : {element.body}
+				
 			</div>
 		))
 	}

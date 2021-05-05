@@ -44,22 +44,34 @@ const io = socketIo(server, {
     cors: {
       origin: "http://localhost:3000",
       methods: ["GET", "POST"],
-      credentials: true,
+      credentials: 'include',
     },
 });
 
+let clientSocketId = [];
 let connectedUsers = [];
+let counts = 0;
+
 io.on('connection', async (socket) => {
-    console.log(io.engine.clientsCount);
     socket.on('login', (user) => {
-        connectedUsers.push({socketId: socket.id, userInfo: user});
-        console.log(user);
-        io.emit('showConnected', "connectedUsers");
+        clientSocketId = clientSocketId.filter((client) => client.userId != user.id);
+        clientSocketId.push({user: user, socketId: socket.id});
+        console.log(clientSocketId);
+
+        io.emit('show clients', clientSocketId);
     });
-    socket.on('send message to server', (message) => {
-        socket.join(message.to);
-        socket.broadcast.emit('send message to client', message);
+    socket.on('disconnect', () => {
+        console.log("Disconnected");
+        clientSocketId = clientSocketId.filter((client) => client.socketId != socket.id);
+        console.log(socket.id);
+        console.log(clientSocketId);
+        io.emit('show clients', clientSocketId);
     });
+    socket.on('create', () => {
+
+    })
+
+
 });
 
 const serverPort = 4000;

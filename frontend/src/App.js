@@ -23,7 +23,7 @@ function App() {
         <Route path='/userProfile/:id'>
           {localStorage.getItem('user') ? <UserProfile /> : <Login />}
         </Route>
-        <Route path='/chatRoom'>
+        <Route path='/chatRoom/:id'>
           {localStorage.getItem('user') ? <ChatRoom /> : <Login />}
         </Route>
 

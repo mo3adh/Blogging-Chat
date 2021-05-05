@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import PostItem from "../components/postItem";
 import serverURL from "../enviornment";
 import GetData from "../services/getData";
@@ -6,13 +6,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import 'font-awesome/css/font-awesome.min.css';
 
-const UserProfile = () => {
-    const id = useParams();
 
-    const {data} = GetData(serverURL + '/getUserInfo/' + id.id);
+
+const UserProfile = () => {
+    const params = useParams();
+    const history = useHistory();
+    const {data} = GetData(serverURL + '/getUserInfo/' + params.id);
 
     const contactUser = () => {
-        console.log("Hello");
+        history.push('/chatRoom/' + params.id);
     }
 
     return ( 
