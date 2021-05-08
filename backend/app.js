@@ -49,29 +49,44 @@ const io = socketIo(server, {
 });
 
 let clientSocketId = [];
-let connectedUsers = [];
-let counts = 0;
+// let connectedUsers = [];
+// let counts = 0;
+
+const getSocketId = (userId) => {
+    let socketId = "";
+    clientSocketId.map((client) => {
+        if(client.user.id === userId) {
+            socketId = client.socketId;
+        }
+    });
+    return socketId;
+}
 
 io.on('connection', async (socket) => {
     socket.on('login', (user) => {
         clientSocketId = clientSocketId.filter((client) => client.userId != user.id);
         clientSocketId.push({user: user, socketId: socket.id});
-        console.log(clientSocketId);
+        // console.log(clientSocketId);
 
         io.emit('show clients', clientSocketId);
     });
+    socket.on('send message to server', (message) => {
+        const userSocketId = getSocketId(message.to);
+        if(userSocketId)
+            socket.broadcast.to(userSocketId).emit('send message to client', message);
+
+        // console.log(clientSocketId);
+    });
+
+
+
+/* On disconnect *****************************/
     socket.on('disconnect', () => {
-        console.log("Disconnected");
         clientSocketId = clientSocketId.filter((client) => client.socketId != socket.id);
-        console.log(socket.id);
         console.log(clientSocketId);
+        console.log("Disconnected");
         io.emit('show clients', clientSocketId);
     });
-    socket.on('create', () => {
-
-    })
-
-
 });
 
 const serverPort = 4000;
@@ -200,7 +215,7 @@ app.get('/getUserInfo/:id', (req, res) => {
             let sql = 'SELECT posts.id, body, userId, username FROM posts, users WHERE userId = ? and userId = users.id';
             conn.query(sql, id.id, (error, result2) => {
                 if(error) res.send(error.message);
-                res.send({username: result1[0].username, posts: result2});
+                res.send({id: id.id, username: result1[0].username, posts: result2});
             });
         } else res.send(error.message);
     });
