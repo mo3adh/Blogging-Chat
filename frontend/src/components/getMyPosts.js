@@ -1,13 +1,18 @@
+import { useEffect } from "react";
 import GetData from "../services/getData";
 import PostItem from "./postItem";
 
-const GetMyPosts = () => {
+const jwt = require('jsonwebtoken');
 
-    const {data : posts , loading, err} = GetData('http://localhost:5000/myPosts');
+const GetMyPosts = () => {
+    const user = jwt.decode(localStorage.getItem('user'));
+
+    const {data} = GetData('http://localhost:5000/getUserInfo/' + user.id);
+  
 
     return ( 
         <div className="GetMyPosts">
-            {posts && posts.map((post) => (
+            {data && data.posts.map((post) => (
                 <PostItem post={post} key={post.id} />
             ))}
         </div>

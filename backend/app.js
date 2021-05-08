@@ -154,19 +154,6 @@ app.get('/authUser', authJwt, (req, res) => {
     res.send('Congrats you are logged in');
 });
 
-/* Get my Info */
-app.get('/getInfo', (req, res) => {
-    const data = jwt.decode(req.cookies.token);
-    if(data) {
-        let sql = 'SELECT * FROM users WHERE id = ?';
-        conn.query(sql, [data.id], (error, result) => {
-            if(error) res.send(error.message);
-            else res.send({id: result[0].id,username: result[0].username});
-        });
-    } else res.send({id: null});
-    
-});
-
 /* Log Out */
 app.get('/logOut', (req, res) => {
     res.clearCookie("token");
@@ -181,17 +168,6 @@ app.get('/getPosts', (req, res) => {
         res.send(result);
     });
 });
-
-app.get('/myPosts', (req, res) => {
-    const data = jwt.decode(req.cookies.token);
-    if(data) {
-        let sql = 'SELECT * FROM posts, users where userId = ? AND posts.userId = users.id';
-        conn.query(sql, data.id, (error, result) => {
-            if(error) res.send(error.message);
-            else res.send(result);
-        });
-    } else res.send({});
-}); 
 
 /* Create new post */
 app.post('/createPost', (req, res) => {
