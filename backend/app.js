@@ -70,15 +70,29 @@ io.on('connection', async (socket) => {
 
         io.emit('show clients', clientSocketId);
     });
+
+    socket.on('create room', (data) => {
+        socket.join(data.room); 
+        const userSocketId = getSocketId(data.to);
+        if(userSocketId) {
+            socket.broadcast.to(userSocketId).emit('invite', data.room);
+            console.log("Room was created " + data.room);
+        }
+        else 
+            console.log("Cannot find Socket Id");
+    });
+
+    socket.on('join', (room) => {
+        socket.join(room);
+        // console.log("Joined Successfully to room: " + room);
+    });
+
     socket.on('send message to server', (message) => {
-        const userSocketId = getSocketId(message.to);
-        if(userSocketId)
-            socket.broadcast.to(userSocketId).emit('send message to client', message);
+        io.to(message.room).emit('send message to client', message);
+        console.log("Send Successfully");
 
         // console.log(clientSocketId);
     });
-
-
 
 /* On disconnect *****************************/
     socket.on('disconnect', () => {

@@ -2,7 +2,6 @@ import TextField from "@material-ui/core/TextField";
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import io from "socket.io-client";
-import GetData from "../services/getData";
 const jwt = require('jsonwebtoken');
 
 const ChatRoom = () => {
@@ -11,6 +10,7 @@ const ChatRoom = () => {
 	const [message, setMessage] = useState('');
 	const socketRef = useRef();
 	const user = jwt.decode(localStorage.getItem('user'));
+	const [room, setRoom] = useState(null);
 
 	const getUserInfo = async (id) => {
 		try {
@@ -31,18 +31,27 @@ const ChatRoom = () => {
 		socketRef.current = io.connect('http://localhost:4000');
 		socketRef.current.emit('login', {id: myInfo.id, username: myInfo.username});
 
-		socketRef.current.on('show clients', (clientSocketId) => {
-			// console.log(clientSocketId);
+		//socketRef.current.on('show clients', (clientSocketId) => {});
+		const room = user.id + params.id;
+		setRoom(room);
+		
+		socketRef.current.emit('create room', {room: room, from: user.id, to: params.id});
+		socketRef.current.on('invite', (room) => {
+			socketRef.current.emit('join', room);
+			setRoom(room);
 		});
-		socketRef.current.on('send message to client', (message) => {
-			console.log(message.body);
-		})
-	}, []);
 
-	const onMessageSubmit = (e) => {
+		socketRef.current.on('send message to client', (message) => {
+			setChat([...chat, message]);
+		});
+	}, [chat]);
+
+	const onMessageSubmit = async (e) => {
 		e.preventDefault();
+		const sender = await getUserInfo(user.id);
+
 		socketRef.current.emit('send message to server', {
-			to: params.id, from: user.id, body: message
+			to: params.id, from: sender, body: message, room: room
 		});
 		setMessage('');
 	}
@@ -54,7 +63,7 @@ const ChatRoom = () => {
 	const renderChat = () => {
 		return chat.map((element, index) => (
 			<div key={index}>
-				
+				{element.from.username} : {element.body}
 			</div>
 		))
 	}
@@ -73,7 +82,7 @@ const ChatRoom = () => {
 						label="Message"
 					/>
 				</div>
-				<button>Send Message</button>
+				<button disabled = {message === ''}>Send Message</button>
 			</form>
 			<div className="render-chat">
 				<h1>Chat Log</h1>
