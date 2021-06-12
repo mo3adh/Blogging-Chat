@@ -11,6 +11,7 @@ const ChatRoom = () => {
 	const socketRef = useRef();
 	const user = jwt.decode(localStorage.getItem('user'));
 	const [room, setRoom] = useState(null);
+	const [otherUser, setOtherUser] = useState('');
 
 	const getUserInfo = async (id) => {
 		try {
@@ -23,10 +24,29 @@ const ChatRoom = () => {
 		} catch (error) {
 			throw error;
 		}
+	};
+
+	const getMessages = async (myId, otherId) => {
+		try {
+			const result = await fetch(`http://localhost:5000/getMessages?myId=${myId}&otherId=${otherId}`, {
+			method: 'GET',
+			credentials: "include"
+		});
+			const data = await result.json();
+			return data;
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	useEffect( async () => {
 		const myInfo = await getUserInfo(user.id);
+		const otherUser = await getUserInfo(params.id);
+		setOtherUser(otherUser);
+		
+		const messages = await getMessages(user.id, params.id);
+		setChat( messages);
+		console.log(messages);
 
 		socketRef.current = io.connect('http://localhost:4000');
 		socketRef.current.emit('login', {id: myInfo.id, username: myInfo.username});
@@ -35,23 +55,34 @@ const ChatRoom = () => {
 		const room = user.id + params.id;
 		setRoom(room);
 		
-		socketRef.current.emit('create room', {room: room, from: user.id, to: params.id});
+		socketRef.current.emit('create room', {room: room, sender: user.id, receiver: params.id});
 		socketRef.current.on('invite', (room) => {
 			socketRef.current.emit('join', room);
 			setRoom(room);
 		});
 
 		socketRef.current.on('send message to client', (message) => {
-			setChat([...chat, message]);
+			const message1 = {
+				id: Number.MAX_VALUE,
+				sender: message.sender.id,
+				receiver: message.receiver,
+				body: message.body,
+				date: message.date
+			}
+			// console.log(chat);
+			setChat([...chat, message1]);
+			// console.log(message1)
+			console.log(chat);
 		});
-	}, [chat]);
+	}, []);
 
 	const onMessageSubmit = async (e) => {
 		e.preventDefault();
 		const sender = await getUserInfo(user.id);
+		const date = new Date();
 
 		socketRef.current.emit('send message to server', {
-			to: params.id, from: sender, body: message, room: room
+			receiver: params.id, sender: sender, body: message, room: room, date: date
 		});
 		setMessage('');
 	}
@@ -63,7 +94,7 @@ const ChatRoom = () => {
 	const renderChat = () => {
 		return chat.map((element, index) => (
 			<div key={index}>
-				{element.from.username} : {element.body}
+				{element.sender} : {element.body}
 			</div>
 		))
 	}
@@ -71,13 +102,12 @@ const ChatRoom = () => {
   	return (
 		<div className="card">
 			<form onSubmit={onMessageSubmit}>
-				<h1>Messenger</h1>
+				<h1>{otherUser.username}</h1>
 				<div>
 					<TextField
 						name="message"
 						onChange={(e) => onTextChange(e)}
 						value={message}
-						id="outlined-multiline-static"
 						variant="outlined"
 						label="Message"
 					/>

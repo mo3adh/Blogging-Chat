@@ -9,7 +9,6 @@ const jwt = require('jsonwebtoken');
 
 const http = require("http");
 const socketIo = require("socket.io");
-const { connect } = require('http2');
 
 
 const conn = mysql.createConnection({
@@ -49,8 +48,6 @@ const io = socketIo(server, {
 });
 
 let clientSocketId = [];
-// let connectedUsers = [];
-// let counts = 0;
 
 const getSocketId = (userId) => {
     let socketId = "";
@@ -73,7 +70,7 @@ io.on('connection', async (socket) => {
 
     socket.on('create room', (data) => {
         socket.join(data.room); 
-        const userSocketId = getSocketId(data.to);
+        const userSocketId = getSocketId(data.receiver);
         if(userSocketId) {
             socket.broadcast.to(userSocketId).emit('invite', data.room);
             console.log("Room was created " + data.room);
@@ -89,9 +86,18 @@ io.on('connection', async (socket) => {
 
     socket.on('send message to server', (message) => {
         io.to(message.room).emit('send message to client', message);
-        console.log("Send Successfully");
+        // let sql = 'INSERT INTO messages(sender, receiver, body, date) VALUES(?,?,?,?)';
+        // conn.query(sql, [message.receiver, message.sender.id, message.body, message.date] ,(error, result) => {
+        //     if(!error) {
+        //         io.to(message.room).emit('send message to client', message);
+        //         console.log(result);
+        //         console.log("Sent Successfully");
+        //     } else {
+        //         console.log(error.sqlMessage);
+        //         console.log("Failed to send message");
+        //     }
+        // });
 
-        // console.log(clientSocketId);
     });
 
 /* On disconnect *****************************/
@@ -235,3 +241,13 @@ app.get('/getUserInfo/:id', (req, res) => {
     });
 });
 
+/* Get messages */
+app.get('/getMessages', (req, res) => {
+    const {myId, otherId} = req.query;
+    
+    const sql = 'SELECT * FROM messages WHERE sender = ? AND receiver = ? OR sender = ? AND receiver = ?';
+    conn.query(sql, [myId, otherId, otherId, myId], (error, result) => {
+        if(error) res.send({message: error.sqlMessage});
+        else res.send(result);
+    })
+});
